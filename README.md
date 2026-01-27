@@ -1,55 +1,61 @@
- # DocShip
+🚚 Delivery Hub
 
-DocShip is a platform designed with one clear mission:
-to make international document delivery simple, affordable, and stress-free.
+Delivery Hub is a modern web platform designed to make international document and parcel delivery from the USA to India simple, transparent, and stress-free.
 
-Every day, thousands of people struggle to send important documents from the USA to India — passports, certificates, legal papers, financial documents, and more. They face long queues, confusing processes, high prices, and uncertainty about delivery timelines.
+Sending important documents or shipments internationally is often expensive, confusing, and time-consuming. Delivery Hub solves this by providing a guided, step-by-step shipping experience with clear pricing, validated addresses, and secure payments.
 
-DocShip solves these problems by providing a guided, reliable, and modern end-to-end shipping experience.
+🌍 Why Delivery Hub?
 
- ## 🌍 Why DocShip?
+Delivery Hub is built for users who want:
 
-People sending documents internationally want a platform that is:
+A simple and easy-to-understand shipping flow
 
-Easy to understand
+Transparent pricing with no hidden steps
 
-Trustworthy
+Reliable delivery timelines
 
-Fast
+A platform tailored specifically for USA → India shipping
 
-Designed for their exact needs
+The entire shipment process can be completed in just a few minutes.
 
-DocShip is built specifically for USA → India document shipping, offering a streamlined process that users can complete in just a few minutes.
+📦 Application Flow
+1️⃣ Shipping Estimate
 
- ## 📦 1. Shipping Estimate
+Delivery Hub removes the complexity of international shipping estimates.
 
-DocShip removes the confusion normally associated with international shipping.
+User inputs:
 
-Shipping type and route are pre-selected
+ZIP Code (5 digits – USA)
 
-User enters:
+PIN Code (6 digits – India)
 
-ZIP code (5 digits)
+Both inputs are validated using a supported PIN code database.
 
-PIN code (6 digits)
+System automatically handles:
 
-Both are validated using a supported PIN code database
+Shipping route
 
-User selects a courier (FedEx, UPS, etc.)
+Service type (Fast / Normal / Air / Sea)
 
-DocShip instantly shows:
+Courier selection (FedEx)
 
-Estimated price
+Instantly displays:
 
-Delivery time
+Estimated delivery cost
 
-This step is minimal, clean, and extremely easy to complete.
+Expected delivery time
 
- ## 🏠 2. Shipment Details
+This step is intentionally minimal and beginner-friendly.
 
-This is one of DocShip’s strongest features.
+🏠 2️⃣ Shipment Details
 
-Users can paste their entire address, and our smart Address Parser automatically converts it into structured fields:
+Delivery Hub simplifies address entry with smart parsing.
+
+Users can:
+
+Paste their entire address into a single input field
+
+The system automatically extracts and fills:
 
 Street
 
@@ -59,36 +65,43 @@ State
 
 Country
 
-ZIP/PIN
+ZIP / PIN Code
 
-This saves time, reduces errors, and avoids typing long details.
+Manual entry is also supported, with built-in validation to reduce errors.
 
-Manual entry is also supported, and ZIP/PIN fields are auto-filled.
+💳 3️⃣ Payment (Zelle QR Scanner)
 
- ## 💳 3. Payment
+Delivery Hub uses a Zelle-based QR payment system for secure and hassle-free payments.
 
-The payment process is simple and secure.
+Payment flow:
 
-The user enters:
+A Zelle QR code is generated inside the app
 
-16-digit card number
+The user scans the QR code using their Zelle-enabled banking app
 
-Cardholder name
+Payment is completed outside the application
 
-Expiry month & year
+The user enters or confirms the payment reference ID
 
-3-digit CVV
+Backend responsibilities:
 
-The backend performs instant validation to ensure accuracy and safety.
-After a successful check, DocShip confirms that:
+Validate the payment reference
 
-Payment processed → Shipment confirmed
+Record payment details securely
 
- ## 🏷 4. Shipping Label Generation
+Link the payment to the shipment tracking number
 
-Immediately after confirmation, DocShip generates a professional PDF shipping label containing:
+Once verified:
 
-Sender & receiver details
+Payment confirmed → Shipment approved
+
+This approach avoids storing card details and improves security.
+
+🏷 4️⃣ Shipping Label Generation
+
+After successful payment confirmation, Delivery Hub generates a professional PDF shipping label that includes:
+
+Sender and receiver details
 
 Courier information
 
@@ -96,19 +109,20 @@ Barcode
 
 Unique tracking number
 
-Users can download the label instantly. This final step completes the flow and gives customers a fast, effortless shipping experience.
+Users can download the label instantly, completing the shipping process.
 
-## 🛠 Technical Architecture
+🛠 Technical Architecture
+🖥 Backend
 
-DocShip is built on a clean and lightweight architecture.
+Node.js
 
-Backend
-
-Node.js / Express
+Express.js
 
 Strict server-side validation
 
 JSON-based storage
+
+Data files:
 
 shipments.json
 
@@ -116,53 +130,67 @@ payments.json
 
 addresses.json
 
-Core APIs
+Core APIs:
 
-Estimate API — calculates shipping cost + delivery time
+Estimate API – calculates cost and delivery time
 
-Address Parser API — extracts structured fields from raw address input
+Address Parser API – converts raw address into structured fields
 
-Payment API — validates and records card details
+Payment API – validates Zelle payment reference
 
-Label Generator API — produces PDF label with tracking ID
+Label Generator API – generates PDF shipping labels
 
+🎨 Frontend
 
-## 1️⃣ Clone the repository
-git clone https://github.com/santhosh72744/DocShip
+React
 
-## 2️⃣ Move into the project directory
-cd DocShip
+Multi-step guided UI
 
-## 🖥 Backend Setup
-Install dependencies
+Service-based categories
+
+Modal-driven service selection
+
+Step navigator with Home navigation
+
+Input-level validation (ZIP & PIN)
+
+Zelle QR scanner payment UI
+
+🚀 Getting Started
+1️⃣ Clone the repository
+git clone https://github.com/santhosh72744/Delivery-hub.git
+
+2️⃣ Move into the project directory
+cd Delivery-hub
+
+🖥 Backend Setup
 cd backend
- ### npm install
-
-Run backend
-### npm start
+npm install
+npm start
 
 
-### Default backend URL:
+Backend URL
 
 http://localhost:5000
 
-##  🎨 Frontend Setup
-Install dependencies
+🎨 Frontend Setup
 cd frontend
-### npm install
-
-Run development server
- ### npm start
+npm install
+npm start
 
 
-### Default frontend URL:
+Frontend URL
 
 http://localhost:3000
------------------------------------------------------------------------
-# Click on image to watch
-[![Watch on YouTube](thumbnail.png)](https://youtu.be/teEF_QlBv_g)
 
+✅ Current Status
 
+Core shipping flow implemented
 
+Zelle QR payment integrated
 
+Address parsing enabled
 
+UI actively improving
+
+Production hardening in progress
