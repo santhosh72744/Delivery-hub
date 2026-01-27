@@ -1,0 +1,127 @@
+.payment-step {
+  max-width: 420px;
+  margin: 2rem auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+/* TITLE */
+.step-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 1.5rem;
+}
+
+/* AMOUNT BOX */
+.amount-box {
+  margin-bottom: 1.8rem;
+}
+
+.amount-usd {
+  display: block;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.amount-inr {
+  display: block;
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-top: 0.3rem;
+}
+
+/* ZELLE BOX */
+.zelle-box {
+  border: 2px dashed #e2e8f0;
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.zelle-box h3 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* QR IMAGE */
+.zelle-qr {
+  width: 220px;
+  height: auto;
+  margin: 1rem auto;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* EMAIL */
+.zelle-box p {
+  font-size: 0.95rem;
+  color: #475569;
+  margin-top: 0.8rem;
+}
+
+.zelle-box strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.zelle-note {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 0.6rem;
+}
+
+/* ACTION BUTTONS */
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.actions button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* BACK BUTTON */
+.actions button:first-child {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #334155;
+}
+
+.actions button:first-child:hover {
+  background: #f8fafc;
+}
+
+/* PRIMARY BUTTON */
+.actions .sub {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.35);
+}
+
+.actions .sub:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(99, 102, 241, 0.45);
+}
+
+/* SUCCESS STATE */
+.payment-step p {
+  font-size: 1rem;
+  color: #334155;
+  line-height: 1.5;
+}

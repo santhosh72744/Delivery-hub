@@ -1,0 +1,131 @@
+:root {
+  --primary-accent: #2563eb;
+  --bg-soft: #f8fafc;
+  --card-shadow: rgba(0, 0, 0, 0.04);
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+.service-section {
+  padding: 6rem 2rem;
+  background-color: var(--bg-soft);
+  text-align: center;
+}
+
+.service-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 4rem;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.service-grid {
+  display: grid;
+  
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 2rem;
+  max-width: 1200px;
+  margin: auto;
+  align-items: stretch;
+}
+
+
+@media (max-width: 1024px) {
+  .service-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2x2 grid for tablets */
+  }
+}
+
+@media (max-width: 600px) {
+  .service-grid {
+    grid-template-columns: 1fr; 
+  }
+}
+
+.service-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 3rem 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 10px 30px -10px var(--card-shadow),
+    0 20px 25px -5px rgba(0, 0, 0, 0.02);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* The Secret "Glow" Effect on Hover */
+.service-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: -1;
+}
+
+.service-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  border-color: rgba(37, 99, 235, 0.2);
+  box-shadow: 0 40px 60px -15px rgba(30, 58, 138, 0.1);
+}
+
+.service-card:hover::before {
+  opacity: 1;
+}
+
+/* Floating Icon Style */
+.service-card .icon {
+  display: inline-flex;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.08));
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.service-card:hover .icon {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.service-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #0f172a;
+}
+
+.service-card p {
+  font-family: var(--font-body);
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Modern Pill Tag */
+.service-card .tag {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.5rem 1.25rem;
+  background: #f1f5ff;
+  color: var(--primary-accent);
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.service-card:hover .tag {
+  background: var(--primary-accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}

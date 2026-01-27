@@ -1,0 +1,362 @@
+/* ============================================
+   1. Base & Utility Styles (Monochrome for Print Look)
+   ============================================ */
+:root {
+    --label-text: #000;
+    --label-bg: #fff;
+    --border-strong: 2px solid var(--label-text);
+    --border-light: 1px solid var(--label-text);
+    --primary-blue: #4cfa86;
+    --primary-green: #10b981;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+.label-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f0f4f8; /* Light gray background for contrast */
+}
+
+/* Print-like Container - Fixed Aspect Ratio and Monochrome Styling */
+.label-container {
+    width: 100%;
+    max-width: 450px; /* Standard width for a 4-inch label view */
+    min-height: 550px;
+    background-color: var(--label-bg);
+    border: 3px double var(--label-text);
+    padding: 10px;
+    font-family: monospace, 'Courier New', Courier; /* Monospace for authenticity */
+    font-size: 10px;
+    line-height: 1.3;
+    color: var(--label-text);
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.label-container p {
+    margin: 2px 0;
+    padding: 0;
+}
+
+.bold { font-weight: 700; }
+.small { font-size: 8px; }
+
+/* General Row Utility for the Footer */
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ============================================
+   2. Header (Sender Info)
+   ============================================ */
+.header {
+    padding-bottom: 8px;
+    border-bottom: var(--border-strong);
+}
+
+.header .left {
+    flex: 2;
+    padding-right: 10px;
+    border-right: var(--border-light);
+}
+
+.header .right {
+    flex: 1;
+    padding-left: 10px;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* ============================================
+   3. Destination Block
+   ============================================ */
+.to-block {
+    padding: 10px 0;
+    border-bottom: var(--border-strong);
+}
+
+.to-block .small {
+    font-size: 10px;
+    font-weight: bold;
+    color: #444;
+}
+
+.to-block .big {
+    font-size: 18px;
+    margin: 5px 0 10px 0;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.to-block .ref {
+    font-size: 9px;
+    font-weight: 600;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   4. Barcode and Courier Info
+   ============================================ */
+.barcode-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: var(--border-strong);
+}
+
+.barcode-svg {
+    width: 65%;
+    height: 65px; 
+    display: block;
+}
+
+.courier-box {
+    width: 30%;
+    height: 65px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-left: var(--border-light);
+}
+
+.courier-name {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.service-code {
+    font-size: 24px;
+    font-weight: 900;
+    margin-top: 5px;
+}
+
+/* ============================================
+   5. Tracking Number, QR & Side Info (Main Grid)
+   ============================================ */
+.tracking-main-area {
+    display: flex;
+    border-bottom: var(--border-strong);
+    height: 140px; /* Fixed height for clean grid layout */
+}
+
+/* Groups Tracking Number and QR Code */
+.qr-tracking-group {
+    flex: 3;
+    display: flex;
+    border-right: var(--border-light);
+}
+
+.tracking-big {
+    flex: 3;
+    padding: 10px 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-right: var(--border-light);
+}
+
+.tracking-big .trk {
+    font-size: 10px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.tracking-big .big-num {
+    font-size: 38px; /* Large and dominant */
+    font-weight: 900;
+    letter-spacing: 2px;
+    line-height: 1;
+    word-break: break-all;
+}
+
+.tracking-big .big-code {
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+.qr {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    /* No border-right as it is contained within the qr-tracking-group's right border */
+}
+
+.side-info {
+    flex: 1;
+    padding: 5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.side-info p {
+    font-size: 10px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.side-info .zip {
+    font-size: 16px;
+    margin: 5px 0;
+    padding: 5px;
+    border: var(--border-light);
+    line-height: 1;
+    display: block;
+    width: 90%;
+}
+
+/* ============================================
+   6. Amount Paid Footer
+   ============================================ */
+.amount-area {
+    padding: 5px 10px;
+    text-align: right;
+    font-size: 10px;
+    border-right: var(--border-light);
+    flex: 1;
+}
+
+.amount-area .amt {
+    font-size: 16px;
+    font-weight: 900;
+    margin-top: 5px;
+}
+
+/* ============================================
+   7. Buttons and Success Modal
+   ============================================ */
+.bottom-buttons {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    max-width: 450px;
+    padding-top: 10px;
+
+}
+
+.download, .done {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background-color: #1d4ed8;
+    color: black;
+}
+
+.download {
+    background-color: var(--primary-blue);
+    color: white;
+    background-color: #1d4ed8;
+}
+
+.download:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.done {
+    background-color: #f9fafb; /* Light background */
+    color: var(--label-text);
+    border: 1px solid #d1d5db;
+}
+
+.done:hover {
+    background-color: #f3f4f6;
+    transform: translateY(-1px);
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+}
+
+.success-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    border: 3px solid var(--primary-green);
+}
+
+.success-box h2 {
+    color: var(--primary-green);
+    margin-top: 0;
+    font-size: 1.5rem;
+}
+
+.success-actions {
+    margin-top: 20px;
+}
+
+.new-btn {
+    padding: 10px 20px;
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.new-btn:hover {
+    background-color: #4338ca;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .label-container {
+        max-width: 100%;
+        min-height: auto;
+    }
+    .header {
+        flex-direction: column;
+    }
+    .header .left {
+        border-right: none;
+        border-bottom: var(--border-light);
+        padding-bottom: 8px;
+        padding-right: 0;
+    }
+    .header .right {
+        padding-left: 0;
+        padding-top: 8px;
+        text-align: left;
+    }
+    .bottom-buttons {
+        max-width: 100%;
+    }
+}

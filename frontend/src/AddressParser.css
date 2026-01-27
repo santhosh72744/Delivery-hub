@@ -1,0 +1,89 @@
+
+:root {
+    --color-primary: #4f46e5;
+    --color-text: #1f2937;
+    --color-border: #d1d5db;
+}
+
+.address-parser {
+    
+    padding: 1.5rem;
+    background-color: white; 
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    flex: 1; 
+}
+
+.address-parser h2 {
+    font-size: 1.25rem; 
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(79, 70, 229, 0.15); 
+}
+
+
+.address-parser textarea {
+    
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: vertical; 
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: 'Inter', sans-serif; 
+}
+
+.address-parser textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.address-parser > div {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.address-parser button {
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    border: none;
+    flex-shrink: 0; 
+}
+
+.address-parser button:first-child {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
+}
+
+.address-parser button:first-child:hover {
+    background-color: #4338ca;
+    transform: translateY(-1px);
+}
+
+.address-parser button:last-child {
+    background-color: #e5e7eb; 
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.address-parser button:last-child:hover {
+    background-color: #d1d5db; 
+}
+
+
+@media (max-width: 768px) {
+    .address-parser {
+        margin-right: 0 !important;
+    }
+}
