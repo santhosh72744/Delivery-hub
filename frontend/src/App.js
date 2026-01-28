@@ -10,6 +10,8 @@ import HeroCarousel from "./HeroCarousel";
 import Footer from "./Footer";
 import ServiceBlocks from "./ServiceBlocks";
 import ServiceModal from "./ServiceModal";
+import logo from "./assets/logo.jpeg";
+
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -180,7 +182,13 @@ function App() {
 
   return (
     <>
-      <header className="page-header">Delivery Hub</header>
+      <header className="page-header">
+  <div className="header-content">
+    <img src={logo} alt="Delivery Hub Logo" className="app-logo" />
+    <span className="app-title">DeliveryHub</span>
+  </div>
+</header>
+
 
       <HeroCarousel onStart={() => setShowEstimate(true)} />
 
@@ -241,7 +249,7 @@ function App() {
         </div>
       )}
 
-      {/* FORM FLOW */}
+    
       <div className="doc" id="estimate">
         {showEstimate && currentStep === 1 && (
           <div className="estimate-container">

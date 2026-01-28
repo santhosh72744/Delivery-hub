@@ -45,6 +45,10 @@ body,
 
 /* Enhanced Header */
 .page-header {
+  display: flex;                 /* ✅ THIS WAS MISSING */
+  justify-content: center;
+  align-items: center;
+
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #3730a3 100%);
   color: white;
   padding: 1.5rem 2rem;
@@ -53,10 +57,10 @@ body,
   box-shadow: var(--shadow-lg);
   border-bottom-left-radius: var(--radius);
   border-bottom-right-radius: var(--radius);
-  text-align: center;
   position: relative;
   overflow: hidden;
 }
+
 
 .page-header::before {
   content: '';
@@ -632,3 +636,19 @@ input::placeholder {
   border-color: var(--primary);
 }
 
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-logo {
+  height: 36px;
+  width: auto;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+}
