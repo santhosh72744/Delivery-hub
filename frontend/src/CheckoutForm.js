@@ -1,275 +1,391 @@
-import React, { useState, useEffect } from "react";
-import { validateCheckout } from "./validations";
+import React, { useState } from "react";
 import "./CheckoutForm.css";
+import {
+  validateAndNormalizeUSPhone,
+  validateAndNormalizeIndiaPhone
+} from "./validations";
 
-/* -----------------------------------
-   INLINE ADDRESS PARSER HELPERS
------------------------------------ */
+/* ============================================
+   SMART INTERNATIONAL ADDRESS PARSER
+============================================ */
 
-const STATES = [
-  "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
-  "Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh",
-  "Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab",
-  "Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh",
-  "Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh",
-  "Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir",
-  "Ladakh","Lakshadweep","Puducherry"
-];
-
-const normalize = (s) => s.replace(/\s+/g, " ").trim();
-const extractPIN = (t) => (t.match(/\b\d{6}\b/g) || []).pop() || "";
-const extractPhone = (t) => {
-  const re = /(?:\+91[\s-]*)?0?([6-9]\d{9})\b/g;
-  let m, last = "";
-  while ((m = re.exec(t))) last = m[1];
-  return last || "";
-};
-const extractState = (t) =>
-  STATES.find((st) => new RegExp(`\\b${st.replace(/\s/g, "\\s+")}\\b`, "i").test(t)) || "";
-
-const extractCity = (t) => {
-  const m = t.match(/\bcity\s*[:\-]\s*([A-Za-z.\s'-]{1,40})\b/i);
-  return m ? normalize(m[1]) : "";
-};
-
-const guessName = (t) => {
-  const lines = t.split(/\n|,/).map(normalize).filter(Boolean);
-  const avoid = /^(address|flat|house|no|street|road|area|block|sector|lane|near|landmark|city|phone)/i;
-
-  for (const line of lines) {
-    if (!/\d{3,}/.test(line) && !avoid.test(line)) {
-      return line;
-    }
-  }
-  return "";
-};
-
-const removeSegments = (t, segs) => {
-  let out = t;
-  segs.filter(Boolean).forEach((s) => {
-    const esc = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    out = out.replace(new RegExp(esc, "ig"), " ");
-  });
-  return normalize(out.replace(/[\s,.:;-]+/g, " "));
-};
-
-function parseIndianAddress(raw) {
+function parseAddress(raw, country) {
   const text = String(raw || "").trim();
 
-  const phoneNumber = extractPhone(text);
-  const pinCode = extractPIN(text);
-  const state = extractState(text);
-  const city = extractCity(text);
-  const fullName = guessName(text);
+  if (!text) return { error: "Please paste address." };
 
-  let unmapped = removeSegments(text, [
-    phoneNumber,
-    pinCode,
-    state,
-    city,
-    fullName,
-  ]);
-  unmapped = unmapped.replace(/^[,.\s-]+|[,.\s-]+$/g, "");
+  const lines = text.split(/\n|,/).map(l => l.trim()).filter(Boolean);
+
+  if (lines.length < 3) {
+    return { error: "Incomplete address. Please enter full details." };
+  }
+
+  const fullName = lines[0];
+
+  const phoneLine = lines.find(line => {
+    const digits = line.replace(/\D/g, "");
+    return digits.length >= 10;
+  });
+
+  if (!phoneLine) {
+    return { error: "Phone number not found." };
+  }
+
+  let phone;
+
+  if (country === "INDIA") {
+    phone = validateAndNormalizeIndiaPhone(phoneLine);
+    if (!phone) {
+      return { error: "Please enter valid Indian phone number." };
+    }
+  } else {
+    phone = validateAndNormalizeUSPhone(phoneLine);
+    if (!phone) {
+      return { error: "Please enter valid US phone number." };
+    }
+  }
+
+  let postal;
+
+  if (country === "INDIA") {
+    const matches = text.match(/\b\d{6}\b/g);
+    if (!matches) {
+      return { error: "Please enter valid 6-digit PIN." };
+    }
+    postal = matches[matches.length - 1];
+  } else {
+    const matches = text.match(/\b\d{5}\b/g);
+    if (!matches) {
+      return { error: "Please enter valid 5-digit ZIP." };
+    }
+    postal = matches[matches.length - 1];
+  }
+
+  const cleanedLines = lines.slice(1).filter(line => {
+    const digitsOnly = line.replace(/\D/g, "");
+    const isPhoneLine = digitsOnly.length >= 10;
+    return !isPhoneLine;
+  });
+
+  const addressLine = cleanedLines.join(", ");
+
+  if (addressLine.length < 5) {
+    return { error: "Please enter proper street / door number." };
+  }
 
   return {
-    firstName: fullName.split(" ")[0] || "",
-    lastName: fullName.split(" ")[1] || "",
-    phoneNumber,
-    pinCode,
-    state,
-    city,
-    unmappedText: unmapped,
+    fullName,
+    phone,
+    postal,
+    addressLine
   };
 }
 
-/* -----------------------------------
-         MAIN CHECKOUT FORM
------------------------------------ */
+/* ============================================
+              CHECKOUT FORM
+============================================ */
 
-export default function CheckoutForm({
-  pickup,
-  setPickup,
-  toAddr,
-  setToAddr,
-  onNext,
-}) {
-  const [errors, setErrors] = useState({});
+export default function CheckoutForm({ route, onNext }) {
+  const [fromRaw, setFromRaw] = useState("");
+  const [toRaw, setToRaw] = useState("");
 
-  const handleParseFrom = (data) => {
-    setPickup({
-      ...pickup,
-      name: `${data.firstName || ""} ${data.lastName || ""}`.trim(),
-      phone: data.phoneNumber || "",
-      address1: data.unmappedText || "",
-      city: data.city || "",
-      state: data.state || "",
-      zip: pickup.zip, // do NOT overwrite USA ZIP
-    });
-  };
+  const [fromData, setFromData] = useState(null);
+  const [toData, setToData] = useState(null);
 
-  const handleParseTo = (data) => {
-    setToAddr({
-      ...toAddr,
-      name: `${data.firstName || ""} ${data.lastName || ""}`.trim(),
-      phone: data.phoneNumber || "",
-      address1: data.unmappedText || "",
-      city: data.city || "",
-      state: data.state || "",
-      pin: data.pinCode || toAddr.pin,
-    });
-  };
+  const [error, setError] = useState("");
 
-  const onChange = (obj, setObj, key) => (e) =>
-    setObj({ ...obj, [key]: e.target.value });
+  const [isEditingFrom, setIsEditingFrom] = useState(false);
+  const [isEditingTo, setIsEditingTo] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [tempFromData, setTempFromData] = useState(null);
+  const [tempToData, setTempToData] = useState(null);
 
-    const { valid, errors: valErrors } = await validateCheckout({
-      pickup,
-      toAddr,
-    });
+  const [fromEditError, setFromEditError] = useState("");
+  const [toEditError, setToEditError] = useState("");
 
-    console.log("VALIDATION ERRORS:", valErrors);
+  const handlePreview = () => {
+    setError("");
 
-    setErrors(valErrors);
+    const fromCountry = route === "US_TO_IN" ? "USA" : "INDIA";
+    const toCountry = route === "US_TO_IN" ? "INDIA" : "USA";
 
-    if (valid) onNext();
-  };
-useEffect(() => {
-  if (pickup.zip === "" && localStorage.getItem("docshipData")) {
-    const saved = JSON.parse(localStorage.getItem("docshipData"));
-    if (saved.zipCode) {
-      setPickup(prev => ({ ...prev, zip: saved.zipCode }));
+    const parsedFrom = parseAddress(fromRaw, fromCountry);
+    if (parsedFrom.error) {
+      setError("From Address: " + parsedFrom.error);
+      return;
     }
-  }
 
-  if (toAddr.pin === "" && localStorage.getItem("docshipData")) {
-    const saved = JSON.parse(localStorage.getItem("docshipData"));
-    if (saved.pinCode) {
-      setToAddr(prev => ({ ...prev, pin: saved.pinCode }));
+    const parsedTo = parseAddress(toRaw, toCountry);
+    if (parsedTo.error) {
+      setError("To Address: " + parsedTo.error);
+      return;
     }
-  }
-}, []);
 
+    setFromData(parsedFrom);
+    setToData(parsedTo);
+  };
+
+  const handleContinue = () => {
+    if (!fromData || !toData) {
+      setError("Please preview address before continuing.");
+      return;
+    }
+
+    onNext({
+      fromData,
+      toData
+    });
+  };
+
+  /* ============================
+        FROM EDIT
+  ============================ */
+
+  const handleEditFrom = () => {
+    setTempFromData({ ...fromData });
+    setFromEditError("");
+    setIsEditingFrom(true);
+  };
+
+  const handleSaveFrom = () => {
+    if (!tempFromData.phone) {
+      setFromEditError("Please enter mobile number.");
+      return;
+    }
+
+    const isUSRoute = route === "US_TO_IN";
+
+    if (!tempFromData.postal) {
+      setFromEditError(
+        isUSRoute
+          ? "Please enter ZIP code for US address."
+          : "Please enter PIN number for Indian address."
+      );
+      return;
+    }
+
+    setFromData(tempFromData);
+    setIsEditingFrom(false);
+    setFromEditError("");
+  };
+
+  /* ============================
+        TO EDIT
+  ============================ */
+
+  const handleEditTo = () => {
+    setTempToData({ ...toData });
+    setToEditError("");
+    setIsEditingTo(true);
+  };
+
+  const handleSaveTo = () => {
+    if (!tempToData.phone) {
+      setToEditError("Please enter mobile number.");
+      return;
+    }
+
+    const isUSRoute = route === "US_TO_IN";
+
+    if (!tempToData.postal) {
+      setToEditError(
+        isUSRoute
+          ? "Please enter PIN number for Indian address."
+          : "Please enter ZIP code for US address."
+      );
+      return;
+    }
+
+    setToData(tempToData);
+    setIsEditingTo(false);
+    setToEditError("");
+  };
 
   return (
     <div className="checkout-container">
-      <h2 className="title">Complete Shipment Details</h2>
+      <h2 className="title">Enter Shipment Addresses</h2>
 
-      {/* PARSER BOXES */}
       <div className="parser-row">
         <div className="parser-box">
-          <h3>From Address</h3>
+          <h3>
+            {route === "US_TO_IN" ? "From (USA)" : "From (India)"}
+          </h3>
           <textarea
             className="parser-input"
-            placeholder="Paste address here"
-            onChange={(e) =>
-              handleParseFrom(parseIndianAddress(e.target.value))
-            }
+            placeholder="Paste full address with name, phone and postal code"
+            value={fromRaw}
+            onChange={(e) => setFromRaw(e.target.value)}
           />
         </div>
 
         <div className="parser-box">
-          <h3>To Address</h3>
+          <h3>
+            {route === "US_TO_IN" ? "To (India)" : "To (USA)"}
+          </h3>
           <textarea
             className="parser-input"
-            placeholder="Paste address here"
-            onChange={(e) => handleParseTo(parseIndianAddress(e.target.value))}
+            placeholder="Paste full address with name, phone and postal code"
+            value={toRaw}
+            onChange={(e) => setToRaw(e.target.value)}
           />
         </div>
       </div>
 
-      {/* FORM GRID */}
-      <form className="form-grid" onSubmit={handleSubmit}>
-        {/* FROM BLOCK */}
-        <fieldset>
-          <legend>From Address</legend>
+      {error && <p className="error">{error}</p>}
 
-          <label>Name</label>
-          <input
-            value={pickup.name}
-            onChange={onChange(pickup, setPickup, "name")}
-          />
-          {errors.pickupName && <p className="error">{errors.pickupName}</p>}
+      <div className="btn-row">
+        <button className="preview-btn" onClick={handlePreview}>
+          Preview Address
+        </button>
 
-          <label>Phone</label>
-          <input
-            value={pickup.phone}
-            onChange={onChange(pickup, setPickup, "phone")}
-          />
-          {errors.pickupPhone && <p className="error">{errors.pickupPhone}</p>}
+        <button
+          className="submit-btn"
+          onClick={handleContinue}
+          disabled={isEditingFrom || isEditingTo}
+        >
+          Continue to Payment
+        </button>
+      </div>
 
-       
+      {fromData && toData && (
+        <div className="preview-section">
 
-         
+          {/* FROM PREVIEW */}
+          <div className="preview-box">
+            <h4>
+              From Address Preview{" "}
+              {!isEditingFrom && (
+                <button onClick={handleEditFrom}>Edit</button>
+              )}
+            </h4>
 
-          <label>ZIP</label>
-          <input
-            value={pickup.zip}
-            maxLength="5"
-            onChange={onChange(pickup, setPickup, "zip")}
-          />
-          {errors.pickupZip && <p className="error">{errors.pickupZip}</p>}
-        </fieldset>
+            {!isEditingFrom ? (
+              <>
+                <p><strong>Name:</strong> {fromData.fullName}</p>
+                <p><strong>Phone:</strong> {fromData.phone}</p>
+                <p>
+                  <strong>
+                    {route === "US_TO_IN" ? "ZIP Code:" : "PIN Code:"}
+                  </strong>{" "}
+                  {fromData.postal}
+                </p>
+                <p><strong>Address:</strong> {fromData.addressLine}</p>
+              </>
+            ) : (
+              <>
+                <input
+                  value={tempFromData.fullName}
+                  onChange={(e) =>
+                    setTempFromData({
+                      ...tempFromData,
+                      fullName: e.target.value
+                    })
+                  }
+                />
+                <input
+                  value={tempFromData.phone}
+                  onChange={(e) =>
+                    setTempFromData({
+                      ...tempFromData,
+                      phone: e.target.value
+                    })
+                  }
+                />
+                <input
+                  value={tempFromData.postal}
+                  onChange={(e) =>
+                    setTempFromData({
+                      ...tempFromData,
+                      postal: e.target.value
+                    })
+                  }
+                />
+                <textarea
+                  value={tempFromData.addressLine}
+                  onChange={(e) =>
+                    setTempFromData({
+                      ...tempFromData,
+                      addressLine: e.target.value
+                    })
+                  }
+                />
+                {fromEditError && (
+                  <p className="error">{fromEditError}</p>
+                )}
+                <button className="save-btn" onClick={handleSaveFrom}>Save</button>
+              </>
+            )}
+          </div>
 
-        {/* TO BLOCK */}
-        <fieldset>
-          <legend>To Address</legend>
+          {/* TO PREVIEW */}
+          <div className="preview-box">
+            <h4>
+              To Address Preview{" "}
+              {!isEditingTo && (
+                <button onClick={handleEditTo}>Edit</button>
+              )}
+            </h4>
 
-          <label>Name</label>
-          <input
-            value={toAddr.name}
-            onChange={onChange(toAddr, setToAddr, "name")}
-          />
-          {errors.toName && <p className="error">{errors.toName}</p>}
+            {!isEditingTo ? (
+              <>
+                <p><strong>Name:</strong> {toData.fullName}</p>
+                <p><strong>Phone:</strong> {toData.phone}</p>
+                <p>
+                  <strong>
+                    {route === "US_TO_IN" ? "PIN Code:" : "ZIP Code:"}
+                  </strong>{" "}
+                  {toData.postal}
+                </p>
+                <p><strong>Address:</strong> {toData.addressLine}</p>
+              </>
+            ) : (
+              <>
+                <input
+                  value={tempToData.fullName}
+                  onChange={(e) =>
+                    setTempToData({
+                      ...tempToData,
+                      fullName: e.target.value
+                    })
+                  }
+                />
+                <input
+                  value={tempToData.phone}
+                  onChange={(e) =>
+                    setTempToData({
+                      ...tempToData,
+                      phone: e.target.value
+                    })
+                  }
+                />
+                <input
+                  value={tempToData.postal}
+                  onChange={(e) =>
+                    setTempToData({
+                      ...tempToData,
+                      postal: e.target.value
+                    })
+                  }
+                />
+                <textarea
+                  value={tempToData.addressLine}
+                  onChange={(e) =>
+                    setTempToData({
+                      ...tempToData,
+                      addressLine: e.target.value
+                    })
+                  }
+                />
+                {toEditError && (
+                  <p className="error">{toEditError}</p>
+                )}
+                <button className="save-btn" onClick={handleSaveTo}>Save</button>
+              </>
+            )}
+          </div>
 
-          <label>Phone</label>
-          <input
-            value={toAddr.phone}
-            onChange={onChange(toAddr, setToAddr, "phone")}
-          />
-          {errors.toPhone && <p className="error">{errors.toPhone}</p>} {/* 🔥 FIXED */}
-
-         <label>State</label>
-          <input
-            value={toAddr.state}
-            onChange={onChange(toAddr, setToAddr, "state")}
-          />
-          {errors.toState && <p className="error">{errors.toState}</p>} 
-
-          <label>City</label>
-          <input
-            value={toAddr.city}
-            onChange={onChange(toAddr, setToAddr, "city")}
-          />
-          {errors.toCity && <p className="error">{errors.toCity}</p>}
-
-          
-
-          <label>PIN</label>
-          <input
-            value={toAddr.pin}
-            maxLength="6"
-            onChange={onChange(toAddr, setToAddr, "pin")}
-          />
-          {errors.toPin && <p className="error">{errors.toPin}</p>}
-
-          <label>Aadhaar</label>
-          <input
-            value={toAddr.aadhaar}
-            maxLength="12"
-            onChange={onChange(toAddr, setToAddr, "aadhaar")}
-          />
-          {errors.aadhaar && <p className="error">{errors.aadhaar}</p>}
-        </fieldset>
-
-        <div className="btn-row">
-          <button type="submit" className="submit-btn">
-            Continue to Payment
-          </button>
         </div>
-      </form>
+      )}
     </div>
   );
 }

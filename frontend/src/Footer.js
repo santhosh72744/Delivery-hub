@@ -3,50 +3,66 @@ import "./Footer.css";
 
 export default function Footer() {
   return (
-    <footer className="footer-dark">
-      <div className="footer-container">
-        
-        <div className="footer-col">
-          <h3 className="footer-title">Delivery Hub</h3>
-          <p className="footer-text">
-            Providing top-tier international logistics from the United States to
-            India. Solutions built around your specific requirements.
-          </p>
-        </div>
+   <footer class="footer" role="contentinfo" aria-label="Delivery Hub website footer">
+  <div class="footer-container">
 
-        <div className="footer-col">
-          <h4 className="footer-heading">Customer Support</h4>
+    <section class="footer-section" aria-labelledby="footer-company">
+      <h2 id="footer-company">Delivery Hub</h2>
+      <p>
+        Delivery Hub provides <strong>international logistics and shipping services</strong>
+        from the <strong>United States to India</strong>. We offer secure, reliable,
+        and customized shipping solutions for personal and commercial needs.
+      </p>
+    </section>
 
-          <p className="footer-label">Email us:</p>
-          <a href="mailto:deliveryhubca@gmail.com" className="footer-link">
+    
+    <section class="footer-section" aria-labelledby="footer-support">
+      <h2 id="footer-support">Customer Support</h2>
+
+      <address>
+        <p>
+          <span class="sr-only">Email support at </span>
+          <strong>Email:</strong>
+          <a
+            href="mailto:deliveryhubca@gmail.com"
+            aria-label="Email Delivery Hub customer support"
+          >
             deliveryhubca@gmail.com
           </a>
+        </p>
 
-          <p className="footer-label" style={{ marginTop: "1rem" }}>
-            Call us:
-          </p>
-          <p className="footer-phone">510 714 6946</p>
-        </div>
+        <p>
+          <span class="sr-only">Call customer support at </span>
+          <strong>Phone:</strong>
+          <a
+            href="tel:+15107146946"
+            aria-label="Call Delivery Hub customer support at +1 510 714 6946"
+          >
+            +1 (510) 714-6946
+          </a>
+        </p>
+      </address>
+    </section>
 
-        
-        <div className="footer-col">
-          <h4 className="footer-heading">Service Area</h4>
-          <p className="footer-text italic">
-            Available for pickups across California and nationwide shipping to
-            all major cities in India.
-          </p>
+   
+    <section class="footer-section" aria-labelledby="footer-service-area">
+      <h2 id="footer-service-area">Service Area</h2>
+      <p>
+        We provide <strong>pickup services across California</strong> and
+        <strong>nationwide shipping</strong> from the USA to all major cities in India,
+        including Hyderabad, Bangalore, Chennai, Mumbai, and Delhi.
+      </p>
+    </section>
 
-          <div className="footer-socials">
-            <i className="fab fa-whatsapp"></i>
-            <i className="fab fa-facebook"></i>
-            <i className="fab fa-instagram"></i>
-          </div>
-        </div>
-      </div>
+  </div>
 
-      <div className="footer-bottom">
-        © 2026 DELIVERY HUB SHIPPING SERVICES. ALL RIGHTS RESERVED.
-      </div>
-    </footer>
+ 
+  <div class="footer-bottom" role="region" aria-label="Legal information">
+    <p>
+      &copy; 2026 <span itemprop="name">Delivery Hub</span>.
+      All rights reserved.
+    </p>
+  </div>
+</footer>
   );
 }

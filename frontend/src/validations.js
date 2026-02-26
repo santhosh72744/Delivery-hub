@@ -7,7 +7,7 @@ export async function isValidPIN(pin) {
   if (!/^\d{6}$/.test(pin)) return false;
 
   try {
-    const res = await fetch(`http://localhost:5000/api/validate-pin/${pin}`);
+    const res = await fetch(`https://www.deliveryhubca.com/api/validate-pin/${pin}`);
     const data = await res.json();
     return data.valid;
   } catch (err) {
@@ -21,8 +21,47 @@ export function isValidZIP(zip) {
   return /^[0-9]{5}$/.test(zip);
 }
 
-// Phone 10-digit
-export const isValidPhone = (phone) => /^[6-9]\d{9}$/.test(phone);
+// -----------------------------
+// PHONE VALIDATION (E.164 SAFE)
+// -----------------------------
+
+// Normalize & Validate US Phone (returns +1XXXXXXXXXX)
+export const validateAndNormalizeUSPhone = (phone) => {
+  const clean = phone.replace(/\D/g, "");
+
+  let normalized = clean;
+
+  // Remove leading 1 if present
+  if (clean.length === 11 && clean.startsWith("1")) {
+    normalized = clean.slice(1);
+  }
+
+  // Strict NANP validation
+  if (!/^[2-9]\d{2}[2-9]\d{6}$/.test(normalized)) {
+    return null;
+  }
+
+  return "+1" + normalized; // Always store E.164
+};
+
+// Normalize & Validate India Phone (returns +91XXXXXXXXXX)
+export const validateAndNormalizeIndiaPhone = (phone) => {
+  const clean = phone.replace(/\D/g, "");
+
+  let normalized = clean;
+
+  // Remove leading 91 if present
+  if (clean.length === 12 && clean.startsWith("91")) {
+    normalized = clean.slice(2);
+  }
+
+  // Must be valid Indian mobile
+  if (!/^[6-9]\d{9}$/.test(normalized)) {
+    return null;
+  }
+
+  return "+91" + normalized; // Always store E.164
+};
 
 // Aadhaar 12-digit
 export const isValidAadhaar = (aadhaar) => /^\d{12}$/.test(aadhaar);
@@ -72,7 +111,9 @@ export async function validateInputs({
     e.pinCode = "Enter valid 6-digit PIN code";
   } else {
     const valid = await isValidPIN(pinCode);
-    if (!valid) e.pinCode = "Delivery to this PIN code is not available. Please use a supported PIN code.";
+    if (!valid)
+      e.pinCode =
+        "Delivery to this PIN code is not available. Please use a supported PIN code.";
   }
 
   if (!chooseCourier)
@@ -84,19 +125,59 @@ export async function validateInputs({
 // -----------------------------
 // CHECKOUT VALIDATION
 // -----------------------------
-export async function validateCheckout({ pickup, toAddr }) {
+export async function validateCheckout({
+  pickup,
+  toAddr,
+  sourceCountry,
+  destinationCountry,
+}) {
   const e = {};
 
   // Pickup
   if (!pickup.name) e.pickupName = "Pickup name required";
-  if (!isValidPhone(pickup.phone)) e.pickupPhone = "Enter valid phone number";
- 
-  if (!isValidZIP(pickup.zip)) e.pickupZip = "Valid 5-digit ZIP required";
 
-  // To Address
+  if (sourceCountry === "USA") {
+    const normalized = validateAndNormalizeUSPhone(pickup.phone);
+    if (!normalized) {
+      e.pickupPhone = "Enter valid US phone number";
+    } else {
+      pickup.phone = normalized;
+    }
+  }
+
+  if (sourceCountry === "India") {
+    const normalized = validateAndNormalizeIndiaPhone(pickup.phone);
+    if (!normalized) {
+      e.pickupPhone = "Enter valid Indian phone number";
+    } else {
+      pickup.phone = normalized;
+    }
+  }
+
+  if (!isValidZIP(pickup.zip))
+    e.pickupZip = "Valid 5-digit ZIP required";
+
+  // Receiver
   if (!toAddr.name) e.toName = "Receiver name required";
-  if (!isValidPhone(toAddr.phone)) e.toPhone = "Enter valid phone number";
- 
+
+  if (destinationCountry === "India") {
+    const normalized = validateAndNormalizeIndiaPhone(toAddr.phone);
+    if (!normalized) {
+      e.toPhone = "Enter valid Indian phone number";
+    } else {
+      toAddr.phone = normalized;
+    }
+  }
+
+  if (destinationCountry === "USA") {
+    const normalized = validateAndNormalizeUSPhone(toAddr.phone);
+    if (!normalized) {
+      e.toPhone = "Enter valid US phone number";
+    } else {
+      toAddr.phone = normalized;
+    }
+  }
+
   if (!toAddr.city) e.toCity = "Receiver city required";
   if (!toAddr.state) e.toState = "Receiver state required";
 

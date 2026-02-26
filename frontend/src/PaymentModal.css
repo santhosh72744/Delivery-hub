@@ -1,127 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary-brand: #2563eb;
+  --navy-deep: #0f172a;
+  --text-body: #334155;
+  --text-light: #64748b;
+  --border-color: #e2e8f0;
+  --bg-surface: #f8fafc;
+  --success-green: #10b981;
+  --white: #ffffff;
+  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+}
+
+/* 1. Container - Spacious & Architectural */
 .payment-step {
-  max-width: 420px;
-  margin: 2rem auto;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 680px; /* Wider for international professional feel */
+  margin: 40px auto;
+  padding: 60px; /* Ultra-spacious padding */
+  background: var(--white);
+  border-radius: 32px;
+  box-shadow: var(--shadow-premium);
   text-align: center;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid var(--border-color);
 }
 
-/* TITLE */
+/* 2. Titles & Amounts */
 .step-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #10b981;
-  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--navy-deep);
+  margin-bottom: 24px;
+  letter-spacing: -0.03em;
 }
 
-/* AMOUNT BOX */
 .amount-box {
-  margin-bottom: 1.8rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-surface);
+  padding: 24px 48px;
+  border-radius: 20px;
+  margin-bottom: 40px;
+  border: 1px solid var(--border-color);
 }
 
 .amount-usd {
-  display: block;
-  font-size: 2.4rem;
+  font-size: 2.8rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--primary-brand); /* Matches primary button */
+  letter-spacing: -0.01em;
 }
 
-.amount-inr {
-  display: block;
-  font-size: 0.95rem;
-  color: #64748b;
-  margin-top: 0.3rem;
-}
-
-/* ZELLE BOX */
+/* 3. Zelle Interactive Area */
 .zelle-box {
-  border: 2px dashed #e2e8f0;
-  border-radius: 14px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  background: var(--white);
+  border: 2px solid var(--border-color);
+  border-radius: 28px;
+  padding: 40px;
+  margin-bottom: 40px;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
 .zelle-box h3 {
-  margin: 0 0 1rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #334155;
+  font-size: 1.2rem;
+  color: var(--navy-deep);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 30px;
+  font-weight: 700;
 }
 
-/* QR IMAGE */
 .zelle-qr {
-  width: 220px;
+  width: 100%;
+  max-width: 260px; /* Large, clear focal point */
   height: auto;
-  margin: 1rem auto;
+  margin: 0 auto 30px;
   display: block;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  background: var(--white);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
 }
 
-/* EMAIL */
 .zelle-box p {
-  font-size: 0.95rem;
-  color: #475569;
-  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--text-body);
 }
 
 .zelle-box strong {
-  color: #0f172a;
-  font-weight: 600;
+  color: var(--primary-brand);
+  font-weight: 700;
 }
 
 .zelle-note {
-  font-size: 0.85rem;
-  color: #64748b;
-  margin-top: 0.6rem;
+  font-size: 0.9rem !important;
+  color: var(--text-light) !important;
+  margin-top: 20px;
+  font-style: italic;
 }
 
-/* ACTION BUTTONS */
+/* 4. Professional Actions */
 .actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .actions button {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-/* BACK BUTTON */
-.actions button:first-child {
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  color: #334155;
-}
-
-.actions button:first-child:hover {
-  background: #f8fafc;
-}
-
-/* PRIMARY BUTTON */
-.actions .sub {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border: none;
-  color: #ffffff;
-  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.35);
-}
-
-.actions .sub:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(99, 102, 241, 0.45);
-}
-
-/* SUCCESS STATE */
-.payment-step p {
+  padding: 20px 36px;
+  border-radius: 16px;
   font-size: 1rem;
-  color: #334155;
-  line-height: 1.5;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 180px;
+}
+
+/* Back Button (Tactile Ghost) */
+.actions button:not(.sub) {
+  background: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--text-light);
+}
+
+.actions button:not(.sub):hover {
+  border-color: var(--navy-deep);
+  color: var(--navy-deep);
+  background: var(--bg-surface);
+}
+
+/* Submit Button (Solid 3D) */
+.actions .sub {
+  background: var(--primary-brand);
+  color: var(--white);
+  border: none;
+  box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.3);
+}
+
+.actions .sub:hover:not(:disabled) {
+  transform: translateY(-3px);
+  background: #1d4ed8;
+  box-shadow: 0 20px 40px -5px rgba(37, 99, 235, 0.4);
+}
+
+.actions .sub:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 5. Success State Styling */
+.payment-step p {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--text-body);
+  margin-bottom: 24px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.thank-you {
+  font-weight: 700;
+  color: var(--navy-deep);
+  margin-top: 40px;
+  font-size: 1.25rem !important;
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .payment-step {
+    padding: 40px 20px;
+    margin: 0;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+  
+  .actions {
+    flex-direction: column-reverse;
+  }
+  
+  .actions button {
+    width: 100%;
+  }
+
+  .step-title {
+    font-size: 1.8rem;
+  }
 }

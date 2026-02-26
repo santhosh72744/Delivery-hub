@@ -5,7 +5,8 @@ const services = [
   {
     id: "documents",
     title: "Documents",
-    desc: "Passports, certificates, papers",
+    desc: "Passports, certificates, legal papers",
+    bestFor: "Urgent & sensitive documents",
     tag: "Fast Delivery",
     icon: "📄",
     type: "fast",
@@ -14,6 +15,7 @@ const services = [
     id: "parcels",
     title: "Parcels",
     desc: "Gifts & personal items",
+    bestFor: "Family packages & personal shipments",
     tag: "Door to Door",
     icon: "📦",
     type: "normal",
@@ -22,6 +24,7 @@ const services = [
     id: "air",
     title: "Air Cargo",
     desc: "Business & bulk shipments",
+    bestFor: "Commercial & time-sensitive cargo",
     tag: "Business",
     icon: "✈️",
     type: "air",
@@ -30,6 +33,7 @@ const services = [
     id: "sea",
     title: "Sea Cargo",
     desc: "Heavy & relocation cargo",
+    bestFor: "Large volume & cost-effective shipping",
     tag: "Lowest Cost",
     icon: "🚢",
     type: "sea",
@@ -47,11 +51,21 @@ export default function ServiceBlocks({ onCreateShipment }) {
             key={s.id}
             className="service-card"
             onClick={() => onCreateShipment(s)}
+            role="button"
+            aria-label={`Create shipment for ${s.title}`}
           >
-            <div className="icon">{s.icon}</div>
-            <h3>{s.title}</h3>
-            <p>{s.desc}</p>
-            <span className="tag">{s.tag}</span>
+           <span className="tag">{s.tag}</span>
+
+<div className="icon">{s.icon}</div>
+
+<h3 className="service-card-title">{s.title}</h3>
+
+<p className="service-desc">{s.desc}</p>
+
+<p className="service-best">
+  Best for: <span>{s.bestFor}</span>
+</p>
+
           </div>
         ))}
       </div>

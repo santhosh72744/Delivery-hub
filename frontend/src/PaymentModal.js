@@ -1,73 +1,79 @@
 import React, { useState } from "react";
 import "./PaymentModal.css";
-import zelleQR from "./images/zelle-QR.jpeg"; // ✅ CORRECT
+import zelleQR from "./images/zelle-QR.jpeg";
 
-export default function PaymentModal({ amount, onBack, onNext }) {
-  const [paid, setPaid] = useState(false);
+export default function PaymentModal({
+  amount,
+  referenceCode,
+  onBack,
+  onNext,
+}) {
+  const [clicked, setClicked] = useState(false);
 
-  const usdAmount = (amount / 84).toFixed(2);
-
-  const handlePaid = () => {
-    setPaid(true);
+  const handleContinue = () => {
+    if (clicked) return; // prevent double click
+    setClicked(true);
+    onNext();
   };
 
   return (
     <div className="payment-step">
-      {!paid ? (
-        <>
-          <h2 className="step-title">Payment</h2>
+      <h2 className="step-title">Secure Payment</h2>
 
-          {/* AMOUNT */}
-          <div className="amount-box">
-            <span className="amount-usd">${usdAmount} USD</span>
-            <span className="amount-inr">₹{amount} INR</span>
-          </div>
+      <div className="amount-box">
+        <span className="amount-label">Total Amount</span>
+        <span className="amount-usd">
+          ${Number(amount).toFixed(2)} USD
+        </span>
+      </div>
 
-          {/* ZELLE PAYMENT */}
-          <div className="zelle-box">
-            <h3>Pay via Zelle</h3>
+      <div className="zelle-box">
+        <h3>Pay via Zelle</h3>
 
-            <img
-              src={zelleQR}
-              alt="Zelle QR Code"
-              className="zelle-qr"
-            />
+        <img
+          src={zelleQR}
+          alt="Zelle QR Code"
+          className="zelle-qr"
+        />
 
-            <p>
-              Zelle Email: <strong>deliveryhubca@gmail.com</strong>
-            </p>
-
-            <p className="zelle-note">
-              After completing payment, click below.
-            </p>
-          </div>
-
-          <div className="actions">
-            <button type="button" onClick={onBack}>
-              Back
-            </button>
-
-            <button className="sub" onClick={handlePaid}>
-              I’ve Paid – Continue
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <h2 className="step-title">✅ Payment Submitted</h2>
+        <div className="payment-details">
           <p>
-            Payment of <strong>${usdAmount}</strong> received.
-            <br />
-            We’ll verify and proceed.
+            <strong>Zelle Email:</strong> deliveryhubca@gmail.com
           </p>
 
-          <div className="actions">
-            <button className="sub" onClick={onNext}>
-              Continue to Label
-            </button>
-          </div>
-        </>
-      )}
+          <p>
+            <strong> Reference Code:</strong> {referenceCode}
+          </p>
+
+         
+
+        
+
+          <p className="zelle-note">
+            After completing the transfer in your banking app,
+            click below to confirm your payment details.
+          </p>
+        </div>
+      </div>
+
+      <div className="actions">
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={onBack}
+          disabled={clicked}
+        >
+          Back
+        </button>
+
+        <button
+          className="btn-primary-3d"
+          onClick={handleContinue}
+          disabled={clicked}
+        >
+          I’ve Paid – Continue
+        </button>
+      </div>
     </div>
   );
 }
