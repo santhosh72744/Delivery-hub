@@ -14,6 +14,14 @@ import PaymentConfirmation from "./PaymentConfirmation";
 import TrackShipment from "./TrackShipment";
 import AdminApp from "./AdminApp";
 
+
+const services = [
+  { id: "documents", title: "Documents" },
+  { id: "parcels", title: "Parcels" },
+  { id: "air", title: "Air Cargo" },
+  { id: "sea", title: "Sea Cargo" },
+];
+
 function App() {
   const path = window.location.pathname;
 
@@ -40,19 +48,31 @@ if (path.startsWith("/admin")) {
 
   const dynamicBlockRef = useRef(null);
 
-  const resetAll = () => {
+const resetAll = () => {
   setShowTrackPage(false);
-setTrackPrefill("");
-setRoute("US_TO_IN");
+  setTrackPrefill("");
+
   setShowEstimate(false);
   setCurrentStep(1);
+
   setSelectedService(null);
   setShipmentConfig(null);
+
   setFinalAmount(null);
-  setRoute(null);
+
+  setRoute("US_TO_IN");   
   setShipmentId(null);
   setReferenceCode(null);
   setPaymentInfo(null);
+};
+
+const handleBook = () => {
+  setShowTrackPage(false);
+  setSelectedService(null);   // unlock service
+  setShipmentConfig(null);
+  setShowEstimate(true);
+  setCurrentStep(1);
+  setRoute("US_TO_IN");
 };
 
   // ✅ Scroll only to the block that just appeared
@@ -77,15 +97,17 @@ setRoute("US_TO_IN");
   }
 }, [currentStep, selectedService]);
 
+
+
 useEffect(() => {
-  if (currentStep >= 3 && !shipmentId) {
+  if (currentStep >= 4 && !shipmentId) {
     setCurrentStep(1);
   }
 }, [currentStep, shipmentId]);
 
 useEffect(() => {
-  if (currentStep === 5 && !paymentInfo) {
-    setCurrentStep(3);
+  if (currentStep === 6 && !paymentInfo) {
+    setCurrentStep(4);
   }
 }, [currentStep, paymentInfo]);
 
@@ -107,6 +129,7 @@ useEffect(() => {
     setShowTrackPage(true);
     setShowEstimate(false);
   }}
+  onBook={handleBook}
 />
 
 {showTrackPage && (
@@ -125,7 +148,13 @@ useEffect(() => {
 
       {!showEstimate && !selectedService && (
         <section id="services">
-          <ServiceBlocks onCreateShipment={setSelectedService} />
+  <ServiceBlocks 
+  onCreateShipment={(service) => {
+    setSelectedService(service);
+    setShowEstimate(false);   // make sure selection step not shown
+    setRoute("US_TO_IN");
+  }} 
+/>
         </section>
       )}
 
@@ -145,7 +174,7 @@ useEffect(() => {
 
               setSelectedService(null);
               setShowEstimate(true);
-              setCurrentStep(1);
+              setCurrentStep(2);
             }}
           />
         </div>
@@ -162,23 +191,42 @@ useEffect(() => {
       {/* STEP 1 – Route Selection */}
       {showEstimate && currentStep === 1 && (
         <div ref={dynamicBlockRef}>
-          <ServiceSelectionStep
-            shipmentConfig={shipmentConfig}
-            route={route}
-            setRoute={setRoute}
-            setCurrentStep={setCurrentStep}
-            resetAll={resetAll}
-          />
+<ServiceSelectionStep
+    services={services}
+    shipmentConfig={shipmentConfig}
+    setShipmentConfig={setShipmentConfig}
+    resetAll={resetAll}
+    mode="service"
+    onServiceConfirm={(service) => {
+      setSelectedService(service);
+      setShowEstimate(false);
+    }}
+/>
         </div>
       )}
 
+{/* STEP 2 – Route Selection */}
+{showEstimate && currentStep === 2 && (
+  <div ref={dynamicBlockRef}>
+    <ServiceSelectionStep
+      route={route}
+      setRoute={setRoute}
+      resetAll={resetAll}
+      mode="route"
+      onServiceConfirm={() => {
+        setCurrentStep(3);
+      }}
+    />
+  </div>
+)}
       {/* STEP 2 – Checkout */}
-      {showEstimate && currentStep === 2 && (
+      {showEstimate && currentStep === 3 && (
         <div ref={dynamicBlockRef}>
           <CheckoutForm
   route={route}
   onNext={async ({ fromData, toData }) => {
               try {
+                console.log("ShipmentConfig:", shipmentConfig);
                 const res = await fetch("/api/shipments", {
                   method: "POST",
                   headers: {
@@ -200,7 +248,7 @@ receiverAddress: toData,
   setShipmentId(data.shipmentId);
   setReferenceCode(data.referenceCode);
   setFinalAmount(data.finalAmount); // 🔥 use backend amount
-  setCurrentStep(3);
+  setCurrentStep(4);
 } else {
                   alert("Shipment creation failed.");
                 }
@@ -215,7 +263,7 @@ receiverAddress: toData,
 
       {/* STEP 3 – Payment */}
 {showEstimate &&
-  currentStep === 3 &&
+  currentStep === 4 &&
   finalAmount &&
   shipmentId &&
   referenceCode && (
@@ -225,13 +273,13 @@ receiverAddress: toData,
         shipmentId={shipmentId}
         referenceCode={referenceCode}
         onBack={() => setCurrentStep(2)}
-        onNext={() => setCurrentStep(4)}   
+        onNext={() => setCurrentStep(5)}   
       />
     </div>
 )}
 
 {showEstimate &&
-  currentStep === 4 &&
+  currentStep === 5 &&
   shipmentId &&
   !paymentInfo && (
     <div ref={dynamicBlockRef}>
@@ -239,7 +287,7 @@ receiverAddress: toData,
         shipmentId={shipmentId}
         onSuccess={(info) => {
   setPaymentInfo(info);
-  setCurrentStep(5);
+  setCurrentStep(6);
 }}
         onBack={() => setCurrentStep(3)}
       />
@@ -247,7 +295,7 @@ receiverAddress: toData,
 )}
 
 {showEstimate &&
-  currentStep === 5 &&
+  currentStep === 6 &&
   paymentInfo && (
     <div ref={dynamicBlockRef}>
       <div className="checkout-container">

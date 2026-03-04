@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import logo from "./assets/logo.jpeg";
 import "./Header.css";
 
-export default function Header({ onHome, onTrack }) {
+export default function Header({ onHome, onTrack,onBook }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -17,19 +17,27 @@ export default function Header({ onHome, onTrack }) {
 
         {/* Desktop Navigation */}
         <nav className={`nav-links ${isMenuOpen ? "mobile-open" : ""}`}>
-          <a href="#services" onClick={() => setIsMenuOpen(false)}>Services</a>
-          <a href="#help" onClick={() => setIsMenuOpen(false)}>Help</a>
-          <a href="#contact" onClick={() => setIsMenuOpen(false)}>Contact</a>
-          
-          {/* Track button stays inside the menu on mobile, or moves depending on CSS */}
-          <button 
-            onClick={() => { onTrack(); setIsMenuOpen(false); }} 
-            className="nav-btn mobile-nav-btn"
-          >
-            Track Shipment
-          </button>
-        </nav>
+  <button
+    onClick={() => { onHome(); setIsMenuOpen(false); }}
+    className="nav-btn"
+  >
+    Home
+  </button>
 
+  <button
+    onClick={() => { onBook(); setIsMenuOpen(false); }}
+    className="nav-btn"
+  >
+    Book Shipment
+  </button>
+
+  <button
+    onClick={() => { onTrack(); setIsMenuOpen(false); }}
+    className="nav-btn mobile-nav-btn"
+  >
+    Track Shipment
+  </button>
+</nav>
         {/* Mobile Actions: Track Icon + Hamburger */}
         <div className="mobile-controls">
           <button onClick={onTrack} className="icon-btn track-icon-only" title="Track">
