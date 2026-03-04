@@ -4,7 +4,8 @@ import {
   validateAndNormalizeUSPhone,
   validateAndNormalizeIndiaPhone
 } from "./validations";
-
+import usFlag from "./images/US.png";
+import indiaFlag from "./images/India.png";
 /* ============================================
    SMART INTERNATIONAL ADDRESS PARSER
 ============================================ */
@@ -203,13 +204,38 @@ export default function CheckoutForm({ route, onNext }) {
 
   return (
     <div className="checkout-container">
-      <h2 className="title">Enter Shipment Addresses</h2>
+      <h2 className="title">
+{route === "US_TO_IN" ? (
+  <>
+    <img src={usFlag} alt="USA" width="26" style={{marginRight:8, verticalAlign:"middle"}} />
+    USA → 
+    <img src={indiaFlag} alt="India" width="26" style={{marginLeft:8, verticalAlign:"middle"}} />
+     India Shipping
+    
+    <br/>
+    Enter Shipment Addresses
+  </>
+) : (
+  <>
+    <img src={indiaFlag} alt="India" width="26" style={{marginRight:8, verticalAlign:"middle"}} />
+    India → 
+    <img src={usFlag} alt="USA" width="26" style={{marginLeft:8, verticalAlign:"middle"}} />
+    USA Shipping
+    <br/>
+    Enter Shipment Addresses
+  </>
+)}
+</h2>
 
       <div className="parser-row">
         <div className="parser-box">
-          <h3>
-            {route === "US_TO_IN" ? "From (USA)" : "From (India)"}
-          </h3>
+<h3>
+  {route === "US_TO_IN"
+    ? <><img src={usFlag} width="22" style={{marginRight:6}} /> From (USA)</>
+    : <><img src={indiaFlag} width="22" style={{marginRight:6}} /> From (India)</>}
+</h3>
+
+
           <textarea
             className="parser-input"
             placeholder="Paste full address with name, phone and postal code"
@@ -219,9 +245,11 @@ export default function CheckoutForm({ route, onNext }) {
         </div>
 
         <div className="parser-box">
-          <h3>
-            {route === "US_TO_IN" ? "To (India)" : "To (USA)"}
-          </h3>
+    <h3>
+  {route === "US_TO_IN"
+    ? <><img src={indiaFlag} width="22" style={{marginRight:6}} /> To (India)</>
+    : <><img src={usFlag} width="22" style={{marginRight:6}} /> To (USA)</>}
+</h3>
           <textarea
             className="parser-input"
             placeholder="Paste full address with name, phone and postal code"

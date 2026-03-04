@@ -7,10 +7,11 @@ export default function StepNavigator({
   onHome,
 }) {
   const steps = [
-    { id: 1, label: "Shipment" },
-    { id: 2, label: "Shipment Details" },
-    { id: 3, label: "Payment" },
-  ];
+  { id: 2, label: "Shipment" },
+  { id: 3, label: "Shipment Details" },
+  { id: 4, label: "Payment" },
+
+];
 
   return (
     <div className="step-nav">

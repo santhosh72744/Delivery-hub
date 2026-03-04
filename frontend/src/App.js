@@ -180,7 +180,7 @@ useEffect(() => {
         </div>
       )}
 
-     {showEstimate && currentStep <= 3 && (
+     {showEstimate && currentStep <= 4 && (
   <StepNavigator
     currentStep={currentStep}
     onStepClick={setCurrentStep}
