@@ -13,6 +13,7 @@ const path = require('path');
 const { exec } = require("child_process");
 const Tesseract = require("tesseract.js");
 const fs = require('fs');
+const USD_TO_INR_RATE = 90;
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -23,6 +24,21 @@ const storage = multer.diskStorage({
     cb(null, uniqueName);
   }
 });
+
+const cashbookStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/cashbook');
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const uploadCashbook = multer({
+  storage: cashbookStorage
+});
+
 
 const upload = multer({
   storage: storage,
@@ -433,9 +449,11 @@ app.patch("/api/shipments/:id/verify", adminAuth, async (req, res) => {
     const { comments } = req.body || {};
 
     const result = await pool.query(
-      "SELECT workflow_status FROM shipments WHERE id = $1",
-      [id]
-    );
+  `SELECT workflow_status, final_amount, reference_code, sender_name
+   FROM shipments
+   WHERE id = $1`,
+  [id]
+);
 
     if (!result.rows.length) {
       return res.status(404).json({ success: false, message: "Shipment not found" });
@@ -454,6 +472,73 @@ app.patch("/api/shipments/:id/verify", adminAuth, async (req, res) => {
       "UPDATE shipments SET workflow_status = 'VERIFIED', updated_at = CURRENT_TIMESTAMP WHERE id = $1",
       [id]
     );
+
+    const shipment = result.rows[0];
+
+const sourceAmount = shipment.final_amount;
+const amountINR = sourceAmount * USD_TO_INR_RATE;
+
+const existingEntry = await pool.query(
+  `
+  SELECT id
+  FROM cashbook_entries
+  WHERE reference = $1
+  AND category = 'shipment_payment'
+  `,
+  [shipment.reference_code]
+);
+
+if (existingEntry.rows.length === 0) {
+
+  await pool.query(
+    `
+    INSERT INTO cashbook_entries (
+      entry_date,
+      type,
+      category,
+      description,
+      amount,
+      amount_inr,
+      source_amount,
+      source_currency,
+      exchange_rate,
+      paid_by,
+      paid_to,
+      payment_method,
+      reference,
+      status,
+      created_by
+    )
+    VALUES (
+      CURRENT_DATE,
+      'INFLOW',
+      'shipment_payment',
+      $1,
+      $2,
+      $2,
+      $3,
+      'USD',
+      $4,
+      $5,
+      'DeliveryHub',
+      'ZELLE',
+      $6,
+      'PAID',
+      $7
+    )
+    `,
+    [
+      `Shipment payment ${shipment.reference_code}`,
+      amountINR,
+      sourceAmount,
+      USD_TO_INR_RATE,
+      shipment.sender_name,
+      shipment.reference_code,
+      req.admin.email
+    ]
+  );
+
+}
 
     await pool.query(
       "INSERT INTO shipment_logs (shipment_id, action, comments, updated_by) VALUES ($1, $2, $3, $4)",
@@ -913,6 +998,264 @@ app.get('/api/admin/shipments', adminAuth, async (req, res) => {
     });
   }
 });
+
+
+// ----------------------
+// Get Cashbook Entries
+// ----------------------
+app.get("/api/admin/cashbook", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM cashbook_entries
+ORDER BY entry_date DESC, id DESC`
+    );
+
+    res.json({
+      success: true,
+      entries: result.rows
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch cashbook entries"
+    });
+  }
+});
+
+// ----------------------
+// Cashbook Summary
+// ----------------------
+app.get("/api/admin/cashbook/summary", adminAuth, async (req, res) => {
+  try {
+
+    const inflowResult = await pool.query(`
+      SELECT COALESCE(SUM(amount_inr),0) AS total_inflow
+      FROM cashbook_entries
+      WHERE type = 'INFLOW'
+    `);
+
+    const outflowResult = await pool.query(`
+      SELECT COALESCE(SUM(amount_inr),0) AS total_outflow
+      FROM cashbook_entries
+      WHERE type = 'OUTFLOW'
+    `);
+
+    const pendingResult = await pool.query(`
+      SELECT COALESCE(SUM(amount_inr),0) AS pending_outflow
+      FROM cashbook_entries
+      WHERE type = 'OUTFLOW'
+      AND status = 'TO_BE_PAID'
+    `);
+
+    const totalInflow = parseFloat(inflowResult.rows[0].total_inflow);
+    const totalOutflow = parseFloat(outflowResult.rows[0].total_outflow);
+    const pendingOutflow = parseFloat(pendingResult.rows[0].pending_outflow);
+
+    const netProfit = totalInflow - totalOutflow;
+
+    res.json({
+      success: true,
+      summary: {
+        totalInflow,
+        totalOutflow,
+        pendingOutflow,
+        netProfit
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to load cashbook summary"
+    });
+  }
+});
+
+// ----------------------
+// Create Cashbook Entry
+// ----------------------
+app.post("/api/admin/cashbook", adminAuth, uploadCashbook.single("attachment"), async (req, res) => {
+ try {
+
+  const { date, type, category, description, amount, status, paid_by, paid_to, reference } = req.body;
+
+  if (!date || !type || !description || !amount || !status || !paid_by || !paid_to) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required fields"
+    });
+  }
+
+  const attachment = req.file ? req.file.path : null;
+  
+  if (category === "courier_cost" && !reference) {
+  return res.status(400).json({
+    success:false,
+    message:"Shipment reference required for courier cost"
+  });
+}
+
+  const result = await pool.query(
+    `
+    INSERT INTO cashbook_entries
+(
+entry_date,
+type,
+category,
+description,
+amount,
+amount_inr,
+paid_by,
+paid_to,
+attachment_url,
+status,
+reference,
+created_by
+)
+    VALUES ($1,$2,$3,$4,$5,$5,$6,$7,$8,$9,$10)
+    RETURNING *
+    `,
+   [
+  date,
+  type,
+  category || null,
+  description,
+  amount,
+  paid_by,
+  paid_to,
+  attachment,
+  status,
+  reference || null,
+  req.admin.email
+]
+  );
+
+  res.json({
+    success: true,
+    entry: result.rows[0]
+  });
+
+} catch (err) {
+  console.error(err);
+  res.status(500).json({
+    success: false,
+    message: "Failed to create entry"
+  });
+}
+});
+
+app.patch("/api/admin/cashbook/:id", adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, type, description, amount, status } = req.body;
+
+    await pool.query(
+      `
+      UPDATE cashbook_entries
+      SET entry_date=$1,
+          type=$2,
+          description=$3,
+          amount=$4,
+          status=$5
+      WHERE id=$6
+      `,
+      [date, type, description, amount, status, id]
+    );
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// ----------------------
+// Delete Cashbook Entry
+// ----------------------
+app.delete("/api/admin/cashbook/:id", adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await pool.query(
+      "DELETE FROM cashbook_entries WHERE id = $1",
+      [id]
+    );
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete entry"
+    });
+  }
+});
+
+// ----------------------
+// Create Manual Bill
+// ----------------------
+app.post("/api/admin/manual-bill", adminAuth, async (req, res) => {
+  try {
+    const { customer_name, phone, amount, bill_date } = req.body;
+
+    if (!customer_name || !phone || !amount) {
+      return res.status(400).json({
+        success: false,
+        message: "Customer name and amount required"
+      });
+    }
+
+    const referenceCode = await generateReference();
+    const id = uuidv4();
+
+    await pool.query(
+      `
+      INSERT INTO shipments
+(
+  id,
+  reference_code,
+  route,
+  sender_name,
+  sender_phone,
+  quantity,
+  unit_price,
+  final_amount,
+  status,
+  workflow_status,
+  payment_method,
+  created_at
+)
+      VALUES ($1,$2,'MANUAL',$3,$4,1,$5,$5,'PAYMENT_PENDING','NEW','MANUAL',$6)
+      `,
+      [
+  id,
+  referenceCode,
+  customer_name,
+  phone,
+  amount,
+  bill_date || new Date()
+]
+    );
+
+    res.json({
+      success: true,
+      reference_code: referenceCode,
+      amount
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false
+    });
+  }
+});
+
 // ----------------------
 // Start Server
 // ----------------------

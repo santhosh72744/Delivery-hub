@@ -11,7 +11,13 @@ function AdminDashboard() {
   const [verifyComment, setVerifyComment] = useState("");
   const [labelShipmentId, setLabelShipmentId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
- 
+  const [showManualBillModal, setShowManualBillModal] = useState(false);
+  const [manualCustomerName, setManualCustomerName] = useState("");
+  const [manualAmount, setManualAmount] = useState("");
+  const [manualPhone, setManualPhone] = useState("");
+  const [manualDate, setManualDate] = useState(
+  new Date().toISOString().split("T")[0]
+);
 
   useEffect(() => {
     fetchShipments();
@@ -98,6 +104,45 @@ function AdminDashboard() {
     console.error(err);
   }
 };
+
+const createManualBill = async () => {
+  if (!manualCustomerName || !manualPhone || !manualAmount) {
+    alert("Customer name, phone, and amount required");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/admin/manual-bill", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+  customer_name: manualCustomerName,
+  phone: manualPhone,
+  amount: manualAmount,
+  bill_date: manualDate
+})
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert(`Bill Generated: ${data.reference_code}`);
+      setShowManualBillModal(false);
+      setManualCustomerName("");
+      setManualAmount("");
+      fetchShipments();
+    } else {
+      alert("Failed to generate bill");
+    }
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   const openVerifyModal = (id) => {
   setVerifyShipmentId(id);
@@ -208,12 +253,46 @@ const submitVerification = async () => {
 
   return (
     <div className="dashboard-wrapper">
-      <div className="dashboard-header">
-        <div className="dashboard-title">Shipping Control Center</div>
-        <button className="logout-btn" onClick={handleLogout}>
-          Log Out
-        </button>
-      </div>
+     <div className="dashboard-header">
+  <div className="dashboard-title">Shipping Control Center</div>
+
+  <div style={{ display: "flex", gap: "10px" }}>
+    
+
+    <button
+  onClick={() => setShowManualBillModal(true)}
+  style={{
+    padding: "8px 14px",
+    background: "#16a34a",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer"
+  }}
+>
+  Generate Bill
+</button>
+
+    <button
+      onClick={() => (window.location.href = "/admin/cashbook")}
+      style={{
+        padding: "8px 14px",
+        background: "#1e293b",
+        color: "white",
+        border: "none",
+        borderRadius: "6px",
+        cursor: "pointer"
+      }}
+    >
+      Cash Book
+    </button>
+
+    <button className="logout-btn" onClick={handleLogout}>
+      Log Out
+    </button>
+
+  </div>
+</div>
 
       <div className="dashboard-content">
         <div className="table-container">
@@ -387,6 +466,67 @@ const submitVerification = async () => {
     </div>
   </div>
 )}
+
+
+{showManualBillModal && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+
+      <h3>Generate Manual Bill</h3>
+
+      <input
+  className="modal-input"
+  type="date"
+  value={manualDate}
+  onChange={(e) => setManualDate(e.target.value)}
+/>
+
+      <input
+        className="modal-input"
+        type="text"
+        placeholder="Customer Name"
+        value={manualCustomerName}
+        onChange={(e) => setManualCustomerName(e.target.value)}
+      />
+
+      <input
+  className="modal-input"
+  type="text"
+  placeholder="Customer Phone"
+  value={manualPhone}
+  onChange={(e) => setManualPhone(e.target.value)}
+/>
+
+      <input
+        className="modal-input"
+        type="number"
+        placeholder="Amount "
+        value={manualAmount}
+        onChange={(e) => setManualAmount(e.target.value)}
+      />
+
+      <div className="modal-actions">
+
+        <button
+          className="btn-cancel"
+          onClick={() => setShowManualBillModal(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="btn-submit"
+          onClick={createManualBill}
+        >
+          Generate
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+)}
+
 
 
 
