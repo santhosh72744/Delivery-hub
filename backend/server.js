@@ -24,6 +24,19 @@ const storage = multer.diskStorage({
     cb(null, uniqueName);
   }
 });
+const carouselStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/carousel');
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const uploadCarousel = multer({
+  storage: carouselStorage
+});
 
 const cashbookStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -53,6 +66,7 @@ const upload = multer({
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const adminAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -1255,6 +1269,168 @@ app.post("/api/admin/manual-bill", adminAuth, async (req, res) => {
     });
   }
 });
+
+// ----------------------
+// Admin Upload Carousel Image
+// ----------------------
+app.post("/api/admin/carousel", adminAuth, uploadCarousel.single("image"), async (req, res) => {
+  try {
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Image required"
+      });
+    }
+
+    const imageUrl = req.file.path;
+    const id = uuidv4();
+
+    await pool.query(
+      `
+      INSERT INTO carousel_items
+      (id, image_url)
+      VALUES ($1,$2)
+      `,
+      [id, imageUrl]
+    );
+
+    res.json({
+      success: true,
+      image_url: imageUrl
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false
+    });
+  }
+});
+// ----------------------
+// Get Carousel Images
+// ----------------------
+app.get("/api/carousel", async (req, res) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT id, image_url, title, display_order
+      FROM carousel_items
+      WHERE is_active = true
+      ORDER BY display_order ASC
+    `);
+
+    res.json({
+      success: true,
+      items: result.rows
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false
+    });
+  }
+});
+
+// ----------------------
+// Admin Get All Carousel
+// ----------------------
+app.get("/api/admin/carousel", adminAuth, async (req, res) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT id, image_url, title, display_order, is_active
+      FROM carousel_items
+      ORDER BY display_order ASC
+    `);
+
+    res.json({
+      success: true,
+      items: result.rows
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success:false });
+  }
+});
+
+// ----------------------
+// Delete Carousel Item
+// ----------------------
+app.delete("/api/admin/carousel/:id", adminAuth, async (req, res) => {
+
+  const { id } = req.params;
+
+  try {
+
+    await pool.query(
+      "DELETE FROM carousel_items WHERE id = $1",
+      [id]
+    );
+
+    res.json({ success:true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success:false });
+  }
+
+});
+
+// ----------------------
+// Toggle Carousel Active
+// ----------------------
+app.patch("/api/admin/carousel/:id/toggle", adminAuth, async (req, res) => {
+
+  const { id } = req.params;
+
+  try {
+
+    await pool.query(`
+      UPDATE carousel_items
+      SET is_active = NOT is_active
+      WHERE id = $1
+    `,[id]);
+
+    res.json({ success:true });
+
+  } catch(err){
+    console.error(err);
+    res.status(500).json({ success:false });
+  }
+
+});
+
+// ----------------------
+// Update Carousel Order
+// ----------------------
+app.patch("/api/admin/carousel/:id/order", adminAuth, async (req, res) => {
+
+  const { id } = req.params;
+  const { display_order } = req.body;
+
+  try {
+
+    await pool.query(`
+      UPDATE carousel_items
+      SET display_order = $1
+      WHERE id = $2
+    `,[display_order,id]);
+
+    res.json({ success:true });
+
+  } catch(err){
+    console.error(err);
+    res.status(500).json({ success:false });
+  }
+
+});
+
+
+
+
 
 // ----------------------
 // Start Server

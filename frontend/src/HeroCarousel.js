@@ -2,11 +2,26 @@ import React, { useState, useEffect } from "react";
 import "./HeroCarousel.css";
 
 export default function HeroCarousel() {
-  const images = ["/carousel-offer.jpeg", "/carousel-offer1.jpeg"];
+
+  const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto Slide (every 4 seconds)
+  // Load carousel images from backend
   useEffect(() => {
+    fetch("/api/carousel")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setImages(data.items);
+        }
+      });
+  }, []);
+
+  // Auto Slide
+  useEffect(() => {
+
+    if (images.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentIndex((prev) =>
         prev === images.length - 1 ? 0 : prev + 1
@@ -14,7 +29,8 @@ export default function HeroCarousel() {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [images.length]);
+
+  }, [images]);
 
   const goPrev = () => {
     setCurrentIndex((prev) =>
@@ -27,6 +43,8 @@ export default function HeroCarousel() {
       prev === images.length - 1 ? 0 : prev + 1
     );
   };
+
+  if (images.length === 0) return null;
 
   return (
     <section className="hero">
@@ -57,12 +75,11 @@ export default function HeroCarousel() {
         <div className="image-wrapper carousel-wrapper">
 
           <img
-            src={images[currentIndex]}
-            alt="DeliveryHub Promotional Offer"
+            src={`https://www.deliveryhubca.com/${images[currentIndex].image_url}`}
+            alt={images[currentIndex].title || "DeliveryHub Promotional Offer"}
             className="hero-image"
           />
 
-          {/* Arrows */}
           <button className="carousel-arrow left" onClick={goPrev}>
             ‹
           </button>

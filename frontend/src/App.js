@@ -23,12 +23,11 @@ const services = [
   { id: "sea", title: "Sea Cargo" },
 ];
 
+
 function App() {
+
   const path = window.location.pathname;
 
-if (path.startsWith("/admin")) {
-  return <AdminApp />;
-}
   const [showEstimate, setShowEstimate] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -38,16 +37,17 @@ if (path.startsWith("/admin")) {
   const [finalAmount, setFinalAmount] = useState(null);
   const [route, setRoute] = useState("US_TO_IN");
   const [showTrackPage, setShowTrackPage] = useState(false);
- 
+
   const [trackPrefill, setTrackPrefill] = useState("");
 
-  // Backend Shipment State
   const [shipmentId, setShipmentId] = useState(null);
   const [referenceCode, setReferenceCode] = useState(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [showFAQ, setShowFAQ] = useState(false);
 
-  const dynamicBlockRef = useRef(null);
+ const dynamicBlockRef = useRef(null);
+
+
 
 const resetAll = () => {
   setShowTrackPage(false);
@@ -61,15 +61,14 @@ const resetAll = () => {
 
   setFinalAmount(null);
 
-  setRoute("US_TO_IN");   
+  setRoute("US_TO_IN");
   setShipmentId(null);
   setReferenceCode(null);
   setPaymentInfo(null);
 };
-
 const handleBook = () => {
   setShowTrackPage(false);
-  setSelectedService(null);   // unlock service
+  setSelectedService(null);   
   setShipmentConfig(null);
   setShowEstimate(true);
   setCurrentStep(1);
@@ -122,16 +121,21 @@ useEffect(() => {
   }
 }, [showTrackPage]);
 
-  return (
-    <>
-      <Header 
-  onHome={resetAll}
-  onTrack={() => {
-    setShowTrackPage(true);
-    setShowEstimate(false);
-  }}
-  onBook={handleBook}
-/>
+
+return (
+  <>
+    {path.startsWith("/admin") ? (
+      <AdminApp />
+    ) : (
+      <>
+        <Header
+          onHome={resetAll}
+          onTrack={() => {
+            setShowTrackPage(true);
+            setShowEstimate(false);
+          }}
+          onBook={handleBook}
+        />
 
 {showTrackPage && (
   <TrackShipment
@@ -451,12 +455,12 @@ receiverAddress: toData,
           <FAQ onClose={() => setShowFAQ(false)} />
         )}
       </section>
-
       <section id="contact">
         <Footer />
       </section>
-    </>
-  );
+      </>
+    )}
+  </>
+);
 }
-
 export default App;

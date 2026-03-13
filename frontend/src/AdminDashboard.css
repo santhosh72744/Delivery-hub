@@ -1,442 +1,260 @@
-/* --- Admin Dashboard Modern Theme --- */
+/* --- Professional Admin Theme --- */
 :root {
-  --bg-main: #f8fafc;
-  --card-bg: #ffffff;
-  --primary: #4f46e5; /* Modern Indigo */
-  --primary-hover: #4338ca;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
+  --primary-dark: #0f172a;
+  --primary-accent: #3b82f6;
+  --bg-soft: #f8fafc;
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --border-color: #e2e8f0;
+  --text-bold: #1e293b;
+  --text-light: #64748b;
   
-  /* Workflow Action Palette */
-  --verify: #0ea5e9;
-  --label: #8b5cf6;
-  --transit: #f59e0b;
-  --deliver: #10b981;
-  --feedback: #ec4899;
-  --close: #1e293b;
+  /* Status Colors */
+  --status-new: #dbeafe;
+  --status-new-text: #1e40af;
+  --status-verified: #fef3c7;
+  --status-verified-text: #92400e;
+  --status-transit: #e0f2fe;
+  --status-transit-text: #075985;
+  --status-delivered: #dcfce7;
+  --status-delivered-text: #166534;
 }
 
-/* --- Layout Wrapper --- */
+body {
+  margin: 0;
+  background-color: var(--bg-soft);
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
 .dashboard-wrapper {
-  background-color: var(--bg-main);
-  min-height: 100vh;
-  padding: 40px 24px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--text-main);
+  padding: 0;
 }
 
-/* --- Header Section --- */
+/* --- Navigation/Header --- */
 .dashboard-header {
-  max-width: 1400px;
-  margin: 0 auto 32px auto;
+  background: white;
+  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .dashboard-title {
-  font-size: 1.75rem;
-  font-weight: 850;
-  letter-spacing: -0.04em;
-  color: var(--text-main);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  letter-spacing: -0.5px;
+}
+
+.dashboard-header .btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* --- Action Buttons (Standard) --- */
+button {
+  transition: all 0.2s ease;
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+button:hover {
+  filter: brightness(90%);
 }
 
 .logout-btn {
-  background: white;
+  background: #fff;
   color: #ef4444;
   border: 1px solid #fee2e2;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-weight: 700;
+  padding: 8px 14px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logout-btn:hover {
   background: #fef2f2;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
 }
 
-/* --- Table Container --- */
+/* --- Table Styles --- */
 .dashboard-content {
-  max-width: 1400px;
+  padding: 2rem;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
 .table-container {
-  background: var(--card-bg);
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
-  border: 1px solid var(--border);
-  overflow: hidden;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  overflow-x: auto;
 }
 
 .shipment-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
-}
-
-/* --- Table Head --- */
-.table-head th {
-  background: #f1f5f9;
-  padding: 16px 24px;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  font-weight: 700;
-  border-bottom: 1px solid var(--border);
-}
-
-/* --- Table Rows --- */
-.table-row {
-  transition: background-color 0.2s;
-}
-
-.table-row:hover {
-  background-color: #fcfdff;
-}
-
-.table-row td {
-  padding: 18px 24px;
-  border-bottom: 1px solid #f1f5f9;
-  vertical-align: middle;
-}
-
-/* --- Custom Cell Styling --- */
-.ref-code {
-  font-family: 'JetBrains Mono', monospace; /* Use a mono font for IDs */
-  font-weight: 700;
-  color: var(--primary);
-  font-size: 0.9rem;
-}
-
-.route-value {
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.amount-value {
-  font-weight: 800;
-  color: var(--text-main);
-  font-variant-numeric: tabular-nums;
-}
-
-.tracking-value, .courier-value {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-/* --- Workflow Cell Container --- */
-.cell-workflow {
-  min-width: 200px;
-}
-
-.workflow-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* Space between pill and meta info */
-  align-items: flex-start;
-}
-
-/* --- Workflow Meta-Information --- */
-.workflow-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.meta-updated {
-  font-size: 0.72rem;
-  color: var(--text-muted); /* Using your defined slate-gray color */
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Optional: Make the date itself slightly more visible than the "Last updated:" label */
-.meta-updated::after {
-  content: "";
-  display: block;
-}
-/* --- Workflow Status Pills --- */
-.status-pill {
-  display: inline-flex;
-  padding: 6px 12px;
-  border-radius: 50px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.status-new { background: #e0f2fe; color: #0369a1; }
-.status-verified { background: #f3f4f6; color: #374151; }
-.status-label_generated { background: #f5f3ff; color: #6d28d9; }
-.status-in_transit { background: #fffbeb; color: #b45309; }
-.status-delivered { background: #ecfdf5; color: #047857; }
-.status-feedback_pending { background: #fff1f2; color: #be123c; }
-
-/* --- Action Buttons --- */
-.action-btn {
-  width: 100%;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  color: white;
-  font-weight: 700;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
   white-space: nowrap;
 }
 
-.action-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.btn-verify { background-color: var(--verify); }
-.btn-label { background-color: var(--label); }
-.btn-transit { background-color: var(--transit); }
-.btn-delivered { background-color: var(--deliver); }
-.btn-feedback { background-color: var(--feedback); }
-.btn-close { background-color: var(--close); }
-
-/* --- Loading State --- */
-.dashboard-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: var(--bg-main);
-}
-
-.loading-text {
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: 2px;
+.table-head th {
+  background: #f1f5f9;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  animation: pulse 1.5s infinite;
+  color: var(--text-light);
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
 }
 
+.table-row {
+  border-bottom: 1px solid #f8fafc;
+}
 
-/* --- Modal Overlay (Blur Background) --- */
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background-color: #f1f5f966;
+}
+
+.table-row td {
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  color: var(--text-bold);
+}
+
+/* --- Typography & Specific Cells --- */
+.ref-code {
+  font-weight: 700;
+  color: var(--primary-accent);
+}
+
+.amount-value {
+  font-weight: 600;
+}
+
+.tracking-link {
+  color: var(--primary-accent);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--primary-accent);
+}
+
+.created-value {
+  color: var(--text-light);
+  font-size: 0.8rem;
+}
+
+/* --- Workflow Status Pills --- */
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.status-new { background: var(--status-new); color: var(--status-new-text); }
+.status-verified { background: var(--status-verified); color: var(--status-verified-text); }
+.status-label_generated { background: #f3e8ff; color: #6b21a8; }
+.status-in_transit { background: var(--status-transit); color: var(--status-transit-text); }
+.status-delivered { background: var(--status-delivered); color: var(--status-delivered-text); }
+
+.meta-updated {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* --- Action Buttons (Table) --- */
+.action-btn {
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: white;
+  width: 100%;
+  min-width: 110px;
+}
+
+.btn-verify { background: #f59e0b; }
+.btn-label { background: #6366f1; }
+.btn-transit { background: #0ea5e9; }
+.btn-delivered { background: #10b981; }
+.btn-feedback { background: #8b5cf6; }
+.btn-close { background: #64748b; }
+
+/* --- Modals --- */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.6); /* Semi-transparent Slate */
-  backdrop-filter: blur(8px); /* Modern frosted glass effect */
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
-  padding: 20px;
 }
 
-/* --- Modal Box --- */
 .modal-box {
-  background: #ffffff;
-  width: 100%;
-  max-width: 450px;
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalPop {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.modal-title {
-  font-size: 1.25rem;
-  font-weight: 850;
-  color: #0f172a;
-  margin-bottom: 20px;
-  letter-spacing: -0.03em;
-  text-align: center;
-}
-
-@keyframes modalSlideIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* --- Styled File Input Area --- */
-.modal-file-input {
-  width: 100%;
-  padding: 40px 20px;
-  border: 2px dashed #e2e8f0;
+  background: white;
+  padding: 24px;
   border-radius: 16px;
-  background-color: #f8fafc;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 600;
-  color: #64748b;
-  text-align: center;
-  transition: all 0.2s ease;
-  margin-bottom: 24px;
-}
-
-.modal-file-input:hover {
-  background-color: #f1f5f9;
-  border-color: #6366f1; /* Indigo hover */
-}
-
-/* Specific styling for the browser "Choose File" text */
-.modal-file-input::-webkit-file-upload-button {
-  visibility: hidden;
-  display: none;
-}
-
-.modal-file-input::before {
-  content: 'Click to select PDF Label';
-  display: inline-block;
-  background: #6366f1;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  font-size: 0.85rem;
-  transition: 0.2s;
-}
-
-.modal-file-input:hover::before {
-  background: #4f46e5;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .modal-box h3 {
   margin: 0 0 16px 0;
   font-size: 1.25rem;
-  font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.02em;
+  color: var(--text-bold);
 }
 
-/* --- Textarea Styling --- */
-.modal-textarea {
+.modal-input, .modal-textarea {
   width: 100%;
-  min-height: 120px;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background-color: #f8fafc;
-  font-family: inherit;
-  font-size: 0.95rem;
-  color: #1e293b;
-  resize: vertical;
-  margin-bottom: 24px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.modal-textarea:focus {
-  outline: none;
-  border-color: #6366f1;
-  background-color: #fff;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+.modal-textarea {
+  min-height: 80px;
+  resize: none;
 }
 
-/* --- Modal Action Buttons --- */
 .modal-actions {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.modal-cancel-btn {
+.btn-submit, .modal-submit-btn {
+  flex: 2;
+  background: var(--primary-accent);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.btn-cancel, .modal-cancel-btn {
   flex: 1;
   background: #f1f5f9;
-  color: #64748b;
+  color: var(--text-light);
   border: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-weight: 700;
+  padding: 10px;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.modal-cancel-btn:hover {
-  background: #e2e8f0;
-  color: #1e293b;
-}
-
-.modal-submit-btn {
-  flex: 2;
-  background: #8b5cf6; /* Unique Violet for Label Generation */
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
-}
-
-.modal-submit-btn:hover {
-  background: #7c3aed;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
-}
-
-.btn-cancel {
-  background: #f1f5f9;
-  color: #64748b;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel:hover {
-  background: #e2e8f0;
-  color: #1e293b;
-}
-
-.btn-submit {
-  background: #4f46e5; /* Match your Indigo primary */
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
-}
-
-.btn-submit:hover {
-  background: #4338ca;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
-}
-
-.btn-submit:active {
-  transform: translateY(0);
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* --- Responsive Adjustments --- */
-@media (max-width: 1024px) {
-  .table-container { overflow-x: auto; }
-  .dashboard-wrapper { padding: 20px 12px; }
+/* --- Responsive Scroll Hint --- */
+@media (max-width: 768px) {
+  .dashboard-content { padding: 1rem; }
+  .dashboard-header { padding: 1rem; flex-direction: column; gap: 10px; }
 }

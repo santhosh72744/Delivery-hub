@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./AdminDashboard.css"; 
 
+
 function AdminDashboard() {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -254,7 +255,7 @@ const submitVerification = async () => {
   return (
     <div className="dashboard-wrapper">
      <div className="dashboard-header">
-  <div className="dashboard-title">Shipping Control Center</div>
+  <div className="dashboard-title">DeliveryHub Admin Center</div>
 
   <div style={{ display: "flex", gap: "10px" }}>
     
@@ -286,6 +287,21 @@ const submitVerification = async () => {
     >
       Cash Book
     </button>
+
+    <button
+  className="carousel-btn"
+  onClick={() => window.location.href="/admin/carousel"}
+  style={{
+        padding: "8px 14px",
+        background: "#1e293b",
+        color: "white",
+        border: "none",
+        borderRadius: "6px",
+        cursor: "pointer"
+      }}
+>
+  Carousel
+</button>
 
     <button className="logout-btn" onClick={handleLogout}>
       Log Out
