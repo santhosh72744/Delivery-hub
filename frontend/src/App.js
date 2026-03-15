@@ -14,7 +14,8 @@ import PaymentConfirmation from "./PaymentConfirmation";
 import TrackShipment from "./TrackShipment";
 import AdminApp from "./AdminApp";
 import AdminCashBook from "./AdminCashBook";
-
+import { trackPageView } from "./utils/analytics";
+import CookieBanner from "./CookieBanner";
 
 const services = [
   { id: "documents", title: "Documents" },
@@ -27,6 +28,10 @@ const services = [
 function App() {
 
   const path = window.location.pathname;
+
+  useEffect(() => {
+  trackPageView(path);
+}, [path]);
 
   const [showEstimate, setShowEstimate] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -124,6 +129,7 @@ useEffect(() => {
 
 return (
   <>
+   <CookieBanner />
     {path.startsWith("/admin") ? (
       <AdminApp />
     ) : (
